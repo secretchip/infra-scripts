@@ -84,6 +84,24 @@ install_doq_dependencies(){
  libnl-route-3-dev
 }
 
+log "Installing Microsoft package repository for libmsquic"
+source /etc/os-release
+wget "https://packages.microsoft.com/config/$ID/$VERSION_ID/packages-microsoft-prod.deb" -O packages-microsoft-prod.deb
+dpkg -i packages-microsoft-prod.deb
+rm -f packages-microsoft-prod.deb
+
+log "Updating package lists after adding Microsoft repo"
+apt-get update -y
+
+log "Installing libmsquic"
+DEBIAN_FRONTEND=noninteractive apt-get install -y libmsquic
+
+log "Installing Ubuntu 24.04 DoQ / HTTP3 dependencies"
+DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    libxdp1 \
+    libnl-3-dev \
+    libnl-route-3-dev
+
 disable_conflicting_services(){
  log "Disabling services that may occupy port 53"
 
