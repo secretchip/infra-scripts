@@ -29,29 +29,9 @@ fi
 echo "[*] Writing rsyslog remote forwarding configuration..."
 cat > "${RSYSLOG_CONF}" <<EOF
 # Remote log forwarding to ${REMOTE_HOST}:${REMOTE_PORT} over UDP
-# Created by setup-remote-syslog.sh on ${TIMESTAMP}
+# Created by setup-remote-logging.sh on ${TIMESTAMP}
 
-# Read local system logs
-module(load="imuxsock")
-module(load="imklog")
-module(load="imjournal" StateFile="imjournal.state")
-
-# Use a queue so brief network issues do not immediately drop everything
-action(
-  type="omfwd"
-  target="${REMOTE_HOST}"
-  port="${REMOTE_PORT}"
-  protocol="udp"
-  action.resumeRetryCount="-1"
-  queue.type="linkedList"
-  queue.filename="fwdRule1"
-  queue.maxdiskspace="1g"
-  queue.saveonshutdown="on"
-  queue.size="10000"
-)
-
-# Forward everything
-*.*  action(
+*.* action(
   type="omfwd"
   target="${REMOTE_HOST}"
   port="${REMOTE_PORT}"
@@ -81,5 +61,5 @@ echo "[+] Logs are now configured to be forwarded to ${REMOTE_HOST}:${REMOTE_POR
 echo "[+] Test message sent with logger."
 echo
 echo "[!] Note:"
-echo "    Only logs that reach syslog/journald will be forwarded."
-echo "    Apps writing only to private files need separate integration."
+echo "    Only logs handled by syslog/journald will be forwarded."
+echo "    Applications writing only to their own files need separate forwarding."
